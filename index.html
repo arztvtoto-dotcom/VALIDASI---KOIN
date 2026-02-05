@@ -3,562 +3,485 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>TVTOTO VALIDATOR PRO - ULTRA EDITION</title>
+    <title>TVTOTO DASHBOARD | MINERA EDITION</title>
     
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-dark: #050508;
-            --bg-panel: rgba(20, 20, 35, 0.6);
-            --primary: #00f3ff;
-            --primary-dim: rgba(0, 243, 255, 0.1);
-            --secondary: #bc13fe;
-            --success: #00ff9d;
-            --danger: #ff0055;
-            --text-main: #ffffff;
-            --text-muted: #a0a0c0;
-            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
-            --glow-primary: 0 0 20px rgba(0, 243, 255, 0.3);
-            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            /* Palette */
+            --bg-body: #050507;
+            --bg-sidebar: #0b0c15;
+            --glass-bg: rgba(20, 20, 30, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            
+            /* Accents */
+            --primary: #3b82f6;       /* Clean Blue */
+            --primary-glow: rgba(59, 130, 246, 0.2);
+            --success: #10b981;       /* Emerald */
+            --danger: #ef4444;        /* Red */
+            --warning: #f59e0b;       /* Amber */
+            --minera: #8b5cf6;        /* Violet for Minera/Coins */
+            --minera-glow: rgba(139, 92, 246, 0.2);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            
+            /* Spacing & Sizing */
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+            --transition: all 0.2s ease-in-out;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            outline: none;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
 
         body {
-            font-family: 'Rajdhani', sans-serif;
-            background-color: var(--bg-dark);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
             color: var(--text-main);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            font-size: 14px; 
         }
 
-        /* Animated Background Canvas */
+        /* Background */
         #bgCanvas {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
-            background: radial-gradient(circle at center, #0f0c29, #302b63, #24243e);
+            background: radial-gradient(circle at 10% 20%, #111827 0%, #050507 90%);
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.3);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #fff;
-        }
-
-        /* Layout */
-        .app-container {
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 25px;
-            max-width: 1920px;
-            margin: 0 auto;
-            padding: 30px;
-            position: relative;
-            z-index: 1;
-            min-height: 100vh;
-        }
-
-        @media (max-width: 1200px) {
-            .app-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Glass Panels */
-        .glass-panel {
-            background: var(--bg-panel);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: var(--glass-border);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition);
-        }
-
-        .glass-panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
-            opacity: 0.5;
-        }
-
-        .glass-panel:hover {
-            transform: translateY(-5px);
-            border-color: rgba(0, 243, 255, 0.3);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5), var(--glow-primary);
-        }
-
-        /* Typography */
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.2rem;
-            text-align: center;
-            background: linear-gradient(135deg, #fff, var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
-        }
-
-        h2, h3 {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--primary);
-            margin-bottom: 15px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Inputs & Textareas */
-        .cyber-input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 12px 15px;
-            color: #fff;
-            font-family: 'Rajdhani', monospace;
-            font-size: 14px;
-            transition: var(--transition);
-            resize: vertical;
-        }
-
-        .cyber-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 15px var(--primary-dim);
-            background: rgba(0, 243, 255, 0.05);
-        }
-
-        textarea.cyber-input {
-            min-height: 120px;
-        }
-
-        /* Buttons */
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
-            justify-content: center;
-        }
-
-        .cyber-btn {
-            background: linear-gradient(135deg, rgba(0, 243, 255, 0.1), rgba(188, 19, 254, 0.1));
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .cyber-btn:hover {
-            background: var(--primary);
-            color: #000;
-            box-shadow: 0 0 25px var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .cyber-btn.danger {
-            border-color: var(--danger);
-            color: var(--danger);
-        }
-        
-        .cyber-btn.danger:hover {
-            background: var(--danger);
-            color: #fff;
-            box-shadow: 0 0 25px var(--danger);
-        }
-
-        /* Tables */
-        .table-container {
-            overflow-x: auto;
-            max-height: 500px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        th {
-            background: rgba(0, 243, 255, 0.1);
-            color: var(--primary);
-            padding: 15px;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            backdrop-filter: blur(10px);
-            font-family: 'Orbitron', sans-serif;
-            letter-spacing: 1px;
-            border-bottom: 2px solid var(--primary);
-            white-space: nowrap;
-        }
-
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            color: var(--text-muted);
-            text-align: center;
-        }
-
-        tr {
-            transition: var(--transition);
-        }
-
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.03);
-            color: #fff;
-        }
-
-        /* Sidebar Elements */
-        .sidebar-card {
-            margin-bottom: 25px;
-        }
-
-        .operator-list {
-            list-style: none;
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .operator-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 15px;
-            margin-bottom: 8px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-            border-left: 3px solid transparent;
-            transition: var(--transition);
-            cursor: default;
-        }
-
-        .operator-item:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateX(5px);
-        }
-
-        .op-badge {
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .status-deposit { border-color: var(--success); }
-        .status-deposit .op-badge { background: rgba(0, 255, 157, 0.2); color: var(--success); }
-
-        .status-withdraw { border-color: var(--danger); }
-        .status-withdraw .op-badge { background: rgba(255, 0, 85, 0.2); color: var(--danger); }
-
-        .status-net { border-color: var(--primary); }
-        .status-net .op-badge { background: rgba(0, 243, 255, 0.2); color: var(--primary); }
-
-        /* File Upload */
-        .file-drop-area {
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 25px;
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .file-drop-area:hover {
-            border-color: var(--primary);
-            background: var(--primary-dim);
-        }
-
-        .file-drop-area input {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        /* Dashboard Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .stat-card {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 5px 0;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        /* Charts Container */
-        .charts-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 25px;
-            height: 250px;
-        }
-        @media (max-width: 900px) {
-            .charts-container { grid-template-columns: 1fr; height: auto; }
-        }
-
-        .chart-wrapper {
-            position: relative;
-            height: 100%;
-            min-height: 200px;
-        }
-
-        /* Toast Notification */
-        #toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--glass-border);
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            padding: 24px;
+            flex-shrink: 0;
+            z-index: 10;
         }
 
-        .toast {
-            background: rgba(10, 10, 20, 0.95);
-            backdrop-filter: blur(10px);
-            border-left: 4px solid var(--primary);
-            color: #fff;
-            padding: 15px 25px;
-            border-radius: 4px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        .brand {
+            margin-bottom: 32px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            transform: translateX(120%);
-            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            font-size: 14px;
-            min-width: 300px;
+            gap: 12px;
         }
 
-        .toast.show {
-            transform: translateX(0);
-        }
-
-        .toast.success { border-color: var(--success); }
-        .toast.error { border-color: var(--danger); }
-        
-        /* Utility */
-        .hidden { display: none !important; }
-        .flex-center { display: flex; justify-content: center; align-items: center; }
-
-        /* Config Panel */
-        .bank-config-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
-            max-height: 200px;
-            overflow-y: auto;
-            padding: 10px;
-            background: rgba(0,0,0,0.2);
+        .brand-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--primary), #6366f1);
             border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
         }
-        
-        .bank-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+
+        .brand-text h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px;
+            background: linear-gradient(to right, #fff, #bfdbfe);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+        .brand-text span { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; }
+
+        .menu-section { margin-bottom: 24px; }
+        .menu-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            padding-left: 12px;
+        }
+
+        .nav-btn {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
             font-size: 0.9rem;
             cursor: pointer;
-            user-select: none;
-        }
-        
-        .bank-option input {
-            accent-color: var(--primary);
+            display: flex; align-items: center; gap: 12px;
+            transition: var(--transition);
+            margin-bottom: 4px;
+            height: 40px; 
         }
 
+        .nav-btn i { font-size: 1.1rem; opacity: 0.8; }
+        .nav-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .nav-btn:hover i { opacity: 1; }
+        .nav-btn.active { background: rgba(59, 130, 246, 0.1); color: var(--primary); }
+        .nav-btn.active i { color: var(--primary); }
+
+        /* Operator List */
+        .operator-panel { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+        #opSearch {
+            width: 100%; padding: 8px 12px; font-size: 0.85rem; margin-bottom: 12px;
+            border-radius: var(--radius-sm); border: 1px solid var(--glass-border);
+            background: rgba(0,0,0,0.2); color: #fff; transition: var(--transition);
+        }
+        #opSearch:focus { border-color: var(--primary); background: rgba(0,0,0,0.4); }
+        .operator-list { flex: 1; overflow-y: auto; padding-right: 4px; }
+        .operator-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 12px; margin-bottom: 4px; background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px; font-size: 0.85rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .operator-item span:first-child { overflow: hidden; text-overflow: ellipsis; margin-right: 8px; }
+        .op-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; flex-shrink: 0; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex: 1; padding: 32px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 24px; 
+        }
+
+        header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--glass-border); }
+        .header-title h2 { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 600; line-height: 1.2; }
+        .header-title p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .stat-card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg); padding: 20px;
+            display: flex; flex-direction: column; justify-content: center;
+            position: relative; transition: var(--transition);
+        }
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+            background: var(--primary); opacity: 0.6; border-radius: 4px 0 0 4px;
+        }
+        .stat-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
+        .stat-label { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+        .stat-value { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; line-height: 1.1; }
+
+        /* Charts */
+        .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; height: 280px; }
+
+        /* Panels */
+        .panel { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--glass-border); }
+        .panel-title { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 10px; }
+
+        /* Inputs */
+        .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px; }
+        .input-label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; }
+        
+        .file-drop-area {
+            border: 2px dashed var(--glass-border); border-radius: var(--radius-md);
+            padding: 20px; text-align: center; cursor: pointer; transition: var(--transition);
+            background: rgba(0,0,0,0.2); color: var(--text-muted); position: relative;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100px;
+        }
+        .file-drop-area:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); color: var(--primary); }
+        .file-drop-area i { font-size: 24px; margin-bottom: 8px; }
+        .file-drop-area span { font-size: 0.85rem; }
+        .file-drop-area input { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
+
+        textarea.cyber-input {
+            width: 100%; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md); padding: 12px; color: #e2e8f0;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; min-height: 90px;
+            resize: vertical; line-height: 1.5; transition: var(--transition);
+        }
+        textarea.cyber-input:focus { border-color: var(--primary); background: rgba(0, 0, 0, 0.4); }
+
+        /* Buttons */
+        .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+        .btn {
+            height: 44px; padding: 0 20px; border-radius: var(--radius-sm); border: none;
+            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.85rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: var(--transition); white-space: nowrap;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid var(--glass-border); }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .btn-danger:hover { background: var(--danger); color: white; }
+
+        /* --- TABLES (PRECISION + MINERA HIGHLIGHT) --- */
+        .table-wrapper { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--glass-border); margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        
+        th {
+            background: rgba(0,0,0,0.3); color: var(--primary); padding: 12px 16px;
+            text-align: center; font-family: 'Outfit', sans-serif;
+            text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em;
+            font-weight: 600; border-bottom: 1px solid var(--glass-border); white-space: nowrap;
+        }
+        
+        td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #cbd5e1; transition: 0.2s; }
+        
+        td:first-child, th:first-child { text-align: left; padding-left: 20px; }
+        td:not(:first-child), th:not(:first-child) { text-align: right; }
+        th:not(:first-child) { text-align: center; }
+
+        tr:hover td { background: rgba(255,255,255,0.03); color: #fff; }
+
+        /* MINERA / COIN HIGHLIGHT STYLES */
+        .row-minera {
+            background: rgba(139, 92, 246, 0.1) !important; /* Violet tint */
+            border-left: 3px solid var(--minera);
+        }
+        .row-minera td:first-child {
+            color: var(--minera) !important;
+            font-weight: 700;
+            text-shadow: 0 0 10px var(--minera-glow);
+        }
+        .minera-tag {
+            display: inline-block; font-size: 0.65rem; padding: 2px 6px;
+            background: var(--minera); color: #fff; border-radius: 4px; margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        /* Search */
+        .table-search {
+            width: 200px; padding: 8px 12px; border-radius: var(--radius-sm);
+            border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);
+            color: #fff; font-size: 0.85rem; transition: var(--transition);
+        }
+        .table-search:focus { border-color: var(--primary); outline: none; }
+
+        /* Config Grid */
+        .bank-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px; max-height: 180px; overflow-y: auto;
+            padding: 12px; background: rgba(0,0,0,0.2);
+            border-radius: var(--radius-md); margin-bottom: 16px; border: 1px solid var(--glass-border);
+        }
+        .bank-opt { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; user-select: none; padding: 4px; }
+        .bank-opt input { accent-color: var(--primary); width: 14px; height: 14px; }
+
+        /* Utilities */
+        .hidden { display: none !important; }
+        
+        /* Toast */
+        #toast-container { position: fixed; top: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast {
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); color: #fff;
+            padding: 16px; border-radius: var(--radius-md);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            display: flex; align-items: center; gap: 12px;
+            transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem; min-width: 300px;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.error { border-left: 4px solid var(--danger); }
+
+        /* Print Mode */
+        @media print {
+            body { background: white !important; color: black !important; height: auto; overflow: visible; display: block; }
+            #bgCanvas, .sidebar, .btn-row, .file-drop-area, .input-group, .charts-container, .search-container, #opSearch { display: none !important; }
+            .main-content { padding: 0 !important; width: 100% !important; margin: 0 !important; }
+            .panel { border: 1px solid #ccc !important; box-shadow: none !important; page-break-inside: avoid; margin-bottom: 20px !important; background: white !important; color: black !important; }
+            .stat-card { border: 1px solid #ccc !important; color: black !important; background: #fff !important; box-shadow: none; }
+            .stat-value, .stat-label { color: black !important; }
+            table { border: 1px solid #000 !important; width: 100% !important; color: black !important; }
+            th, td { border: 1px solid #000 !important; color: black !important; background: transparent !important; padding: 6px !important; font-size: 9pt !important; text-align: right !important; }
+            th:first-child, td:first-child { text-align: left !important; }
+            .header-title p { display: none; }
+            .table-search { display: none; }
+            .row-minera { background: #f0f0f0 !important; }
+            .row-minera td:first-child { color: #000 !important; font-weight: bold; }
+            .minera-tag { display: none; }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            body { flex-direction: column; overflow: auto; }
+            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--glass-border); }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-container { grid-template-columns: 1fr; height: auto; }
+        }
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .upload-grid { grid-template-columns: 1fr; }
+            .btn-row { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
     </style>
 </head>
 <body>
     <canvas id="bgCanvas"></canvas>
-    
     <div id="toast-container"></div>
 
-    <div class="app-container">
-        <!-- Sidebar Section -->
-        <aside class="glass-panel">
-            <h1>TVTOTO<br><span style="font-size: 1rem; color: var(--secondary); letter-spacing: 5px;">PRO SYSTEM</span></h1>
-
-            <div class="sidebar-card">
-                <h3><span style="color:var(--success)">●</span> Status Operasional</h3>
-                <div class="stats-grid" style="grid-template-columns: 1fr;">
-                    <div class="stat-card" style="border-color: var(--primary);">
-                        <div class="stat-label">Net Income</div>
-                        <div id="totalIncomeDisplay" class="stat-value" style="color: var(--primary);">Rp 0</div>
-                    </div>
-                </div>
-                <ul id="operatorList" class="operator-list">
-                    <!-- Operator List injected via JS -->
-                </ul>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="ph ph-cube-transparent"></i></div>
+            <div class="brand-text">
+                <h1>TVTOTO</h1>
+                <span>Validator Pro</span>
             </div>
+        </div>
 
-            <div class="sidebar-card">
-                <h3>📂 Referensi Operator</h3>
-                <div class="file-drop-area">
-                    <span>📁 Unggah File Ref</span>
-                    <input type="file" id="refFileInput" accept=".xlsx,.xls,.csv" onchange="handleRefFileUpload(event)">
-                </div>
-                <textarea id="refInput" class="cyber-input" placeholder="Paste data operator di sini..." style="margin-top:10px; min-height: 80px;"></textarea>
-                <button class="cyber-btn" onclick="setReferensi()" style="width:100%; margin-top:10px; justify-content: center;">SIMPAN REF</button>
+        <div class="menu-section">
+            <div class="menu-title">Main Menu</div>
+            <button class="nav-btn active"><i class="ph ph-chart-pie-slice"></i> Dashboard</button>
+        </div>
+
+        <div class="menu-section operator-panel">
+            <div class="menu-title">Operators</div>
+            <input id="opSearch" placeholder="Search operator...">
+            <ul id="operatorList" class="operator-list"></ul>
+        </div>
+        
+        <div class="menu-section">
+            <div class="menu-title">System</div>
+            <button class="nav-btn" onclick="window.print()"><i class="ph ph-printer"></i> Print Report</button>
+            <button class="nav-btn" onclick="hapusData()" style="color:var(--danger)"><i class="ph ph-trash"></i> Reset Data</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header>
+            <div class="header-title">
+                <h2>Financial Dashboard</h2>
+                <p>Minera & Transaction Analysis</p>
             </div>
-
-            <div class="sidebar-card">
-                <input id="opSearch" class="cyber-input" placeholder="🔍 Filter Operator..." oninput="filterOperatorList()">
+            <div style="text-align:right">
+                <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Status</div>
+                <div style="color:var(--success); font-weight:600; font-size:0.9rem; margin-top:2px;"><i class="ph ph-check-circle"></i> Active</div>
             </div>
-        </aside>
+        </header>
 
-        <!-- Main Content Section -->
-        <main class="glass-panel">
-            
-            <!-- Dashboard Stats & Charts -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Total Deposit</div>
-                    <div id="statDeposit" class="stat-value" style="color: var(--success)">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Total Withdraw</div>
-                    <div id="statWithdraw" class="stat-value" style="color: var(--danger)">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Transaksi</div>
-                    <div id="statTrx" class="stat-value" style="color: #fff">0</div>
-                </div>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card" style="--primary: var(--success)">
+                <div class="stat-label"><i class="ph ph-trend-up"></i> Total Deposit</div>
+                <div id="statDeposit" class="stat-value" data-target="0">0</div>
             </div>
+            <div class="stat-card" style="--primary: var(--danger)">
+                <div class="stat-label"><i class="ph ph-trend-down"></i> Total Withdraw</div>
+                <div id="statWithdraw" class="stat-value" data-target="0">0</div>
+            </div>
+            <div class="stat-card" style="--primary: var(--primary)">
+                <div class="stat-label"><i class="ph ph-receipt"></i> Transactions</div>
+                <div id="statTrx" class="stat-value" data-target="0">0</div>
+            </div>
+            <div class="stat-card" style="--primary: var(--minera)">
+                <div class="stat-label"><i class="ph ph-currency-btc"></i> Minera / Coin</div>
+                <div id="statMinera" class="stat-value" data-target="0">0</div>
+            </div>
+        </div>
 
-            <div class="charts-container">
-                <div class="chart-wrapper">
+        <!-- Charts -->
+        <div class="charts-container">
+            <div class="panel" style="margin:0; padding:16px; display:flex; flex-direction:column;">
+                <div class="panel-title" style="font-size:0.9rem; margin-bottom:8px;">Cash Flow Ratio</div>
+                <div style="flex:1; position:relative; width:100%;">
                     <canvas id="balanceChart"></canvas>
                 </div>
-                <div class="chart-wrapper">
+            </div>
+            <div class="panel" style="margin:0; padding:16px; display:flex; flex-direction:column;">
+                <div class="panel-title" style="font-size:0.9rem; margin-bottom:8px;">Bank Performance (Top 5)</div>
+                <div style="flex:1; position:relative; width:100%;">
                     <canvas id="bankChart"></canvas>
                 </div>
             </div>
+        </div>
 
-            <!-- Input Area -->
-            <h3> Data Transaksi</h3>
-            <div class="file-drop-area" style="margin-bottom: 15px;">
-                <span>📥 Drag & Drop Excel Transaksi atau Klik untuk Upload</span>
-                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" onchange="handleFileUpload(event)">
+        <!-- Data Input Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title"><i class="ph ph-database"></i> Data Processing</div>
             </div>
             
-            <textarea id="dataInput" class="cyber-input" placeholder="Paste data transaksi di sini..."></textarea>
-            
-            <div class="btn-group">
-                <button class="cyber-btn" onclick="tambahData()">➕ Proses Data</button>
-                <button class="cyber-btn" onclick="hitungJumlahDanTotalTransaksi()">📊 Rekap Vertikal</button>
-                <button class="cyber-btn" onclick="generateHorizontalReport()">📈 Rekap Horizontal</button>
-                <button class="cyber-btn danger" onclick="hapusData()">🗑️ Reset Data</button>
-                <button class="cyber-btn" onclick="downloadExcel()">💾 Export Excel</button>
-            </div>
-
-            <!-- Config Panel (Hidden by default) -->
-            <div id="configPanel" class="glass-panel hidden" style="margin-bottom: 20px; border-left: 4px solid var(--secondary);">
-                <h3>⚙️ Konfigurasi Laporan Horizontal</h3>
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <span class="stat-label">Pilih Bank:</span>
-                    <div>
-                        <a href="#" onclick="selectAllBanks(); return false;" style="color:var(--primary); font-size:12px; margin-right:10px;">Select All</a>
-                        <a href="#" onclick="deselectAllBanks(); return false;" style="color:var(--danger); font-size:12px;">Deselect All</a>
+            <div class="upload-grid">
+                <div>
+                    <label class="input-label">Transaction File</label>
+                    <div class="file-drop-area">
+                        <i class="ph ph-upload-simple"></i>
+                        <span>Upload Excel/CSV</span>
+                        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" onchange="handleFileUpload(event)">
                     </div>
                 </div>
-                <div id="bankConfigList" class="bank-config-grid"></div>
-                <button class="cyber-btn" onclick="applyConfig()" style="width: 100%; justify-content: center; margin-top: 15px;">TERAPKAN FILTER</button>
+                <div>
+                    <label class="input-label">Reference File</label>
+                    <div class="file-drop-area">
+                        <i class="ph ph-users"></i>
+                        <span>Upload Ref List</span>
+                        <input type="file" id="refFileInput" accept=".xlsx,.xls,.csv" onchange="handleRefFileUpload(event)">
+                    </div>
+                </div>
             </div>
 
-            <!-- Result Area -->
-            <div id="hasil"></div>
-        </main>
-    </div>
+            <div class="input-group">
+                <label class="input-label">Raw Data Input</label>
+                <textarea id="dataInput" class="cyber-input" placeholder="Paste data transaksi di sini..."></textarea>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="tambahData()"><i class="ph ph-plus-circle"></i> Process Data</button>
+                <button class="btn btn-secondary" onclick="hitungJumlahDanTotalTransaksi()"><i class="ph ph-list-dashes"></i> Vertical Recap</button>
+                <button class="btn btn-secondary" onclick="generateHorizontalReport()"><i class="ph ph-squares-four"></i> Horizontal Recap</button>
+                <button class="btn btn-primary" style="background:var(--success)" onclick="downloadExcel()"><i class="ph ph-microsoft-excel-logo"></i> Export Excel</button>
+            </div>
+        </div>
+
+        <!-- Configuration Panel -->
+        <div id="configPanel" class="panel hidden" style="border: 1px solid var(--primary);">
+            <div class="panel-header">
+                <div class="panel-title" style="color:var(--primary)"><i class="ph ph-faders"></i> Filter Configuration</div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:center;">
+                <span style="font-size:0.85rem; color:var(--text-muted)">Select Banks/Coins:</span>
+                <div style="display:flex; gap:12px; font-size:0.8rem;">
+                    <a href="#" onclick="selectAllBanks(); return false;" style="color:var(--primary);">Select All</a>
+                    <a href="#" onclick="deselectAllBanks(); return false;" style="color:var(--danger);">Deselect All</a>
+                </div>
+            </div>
+            <div id="bankConfigList" class="bank-grid"></div>
+            <button class="btn btn-primary" onclick="applyConfig()" style="width:100%;">Apply Filter</button>
+        </div>
+
+        <!-- Result Area -->
+        <div id="hasil"></div>
+    </main>
 
     <script>
-        // --- GLOBAL VARIABLES ---
+        // --- LOGIC SCRIPT ---
         let dataTransaksi = [];
         let dataWithdraw = [];
         let daftarOperator = new Set();
         let operatorReferensi = {};
         let selectedBanks = new Set();
         let allBanks = new Set();
-        let currentFilter = 'all';
-        let charts = {}; // Store chart instances
+        let charts = {};
 
-        // --- INITIALIZATION ---
         window.addEventListener('DOMContentLoaded', () => {
             initParticles();
             loadFromStorage();
@@ -567,653 +490,269 @@
             updateOperatorList();
         });
 
-        // --- UI UTILITIES (Toast, Animations) ---
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            
-            let icon = type === 'success' ? '✅' : '⚠️';
-            
-            toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+            let icon = type === 'success' ? '<i class="ph ph-check-circle" style="font-size:1.2rem; color:var(--success)"></i>' : '<i class="ph ph-warning-circle" style="font-size:1.2rem; color:var(--danger)"></i>';
+            toast.innerHTML = `${icon}<span>${message}</span>`;
             container.appendChild(toast);
-            
-            // Trigger animation
             setTimeout(() => toast.classList.add('show'), 10);
-            
-            // Remove after 3 seconds
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
 
-        // --- CHART.JS INTEGRATION ---
         function initCharts() {
-            Chart.defaults.color = '#a0a0c0';
+            Chart.defaults.color = '#94a3b8';
             Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
-            Chart.defaults.font.family = "'Rajdhani', sans-serif";
+            Chart.defaults.font.family = "'Inter', sans-serif";
 
-            // Balance Chart (Doughnut)
             const ctx1 = document.getElementById('balanceChart').getContext('2d');
             charts.balance = new Chart(ctx1, {
                 type: 'doughnut',
-                data: {
-                    labels: ['Deposit', 'Withdraw'],
-                    datasets: [{
-                        data: [0, 0],
-                        backgroundColor: ['#00ff9d', '#ff0055'],
-                        borderWidth: 0,
-                        hoverOffset: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { usePointStyle: true, font: {size: 14} } },
-                        title: { display: true, text: 'Rasio Arus Dana', color: '#fff', font: {family: 'Orbitron'} }
-                    },
-                    cutout: '70%'
-                }
+                data: { labels: ['Deposit', 'Withdraw'], datasets: [{ data: [0, 0], backgroundColor: ['#10b981', '#ef4444'], borderWidth: 0, hoverOffset: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } } }
             });
 
-            // Bank Performance Chart (Bar)
             const ctx2 = document.getElementById('bankChart').getContext('2d');
             charts.bank = new Chart(ctx2, {
                 type: 'bar',
-                data: {
-                    labels: [],
-                    datasets: [
-                        { label: 'Deposit', data: [], backgroundColor: '#00ff9d', borderRadius: 4 },
-                        { label: 'Withdraw', data: [], backgroundColor: '#ff0055', borderRadius: 4 }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: { display: true, text: 'Performa Bank (Top 5)', color: '#fff', font: {family: 'Orbitron'} }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        x: { grid: { display: false } }
-                    }
-                }
+                data: { labels: [], datasets: [{ label: 'Deposit', data: [], backgroundColor: '#10b981', borderRadius: 4 }, { label: 'Withdraw', data: [], backgroundColor: '#ef4444', borderRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
             });
         }
 
         function updateCharts() {
-            let totalDep = 0, totalWd = 0;
-            const bankPerf = {};
-
-            // Process Deposit
+            let totalDep = 0, totalWd = 0; const bankPerf = {};
             dataTransaksi.forEach(item => {
-                const val = parseInt((item[2]||'0').replace(/[^0-9\-]/g,''),10) || 0;
-                totalDep += val;
-                const bank = (item[3]||'Unknown').toString();
-                bankPerf[bank] = (bankPerf[bank] || {d:0, w:0});
-                bankPerf[bank].d += val;
+                const val = parseInt((item[2]||'0').replace(/[^0-9\-]/g,''),10) || 0; totalDep += val;
+                const bank = (item[3]||'Unknown').toString(); bankPerf[bank] = (bankPerf[bank] || {d:0, w:0}); bankPerf[bank].d += val;
             });
-
-            // Process Withdraw
             dataWithdraw.forEach(item => {
-                const val = parseInt((item[2]||'0').replace(/[^0-9\-]/g,''),10) || 0;
-                totalWd += val;
-                const bank = (item[6]||'Unknown').toString();
-                bankPerf[bank] = (bankPerf[bank] || {d:0, w:0});
-                bankPerf[bank].w += val;
+                const val = parseInt((item[2]||'0').replace(/[^0-9\-]/g,''),10) || 0; totalWd += val;
+                const bank = (item[6]||'Unknown').toString(); bankPerf[bank] = (bankPerf[bank] || {d:0, w:0}); bankPerf[bank].w += val;
             });
-
-            // Update Balance Chart
-            charts.balance.data.datasets[0].data = [totalDep, totalWd];
-            charts.balance.update();
-
-            // Update Bank Chart (Top 5 by Volume)
-            const sortedBanks = Object.entries(bankPerf)
-                .sort((a,b) => (b[1].d + b[1].w) - (a[1].d + a[1].w))
-                .slice(0, 5);
-            
+            charts.balance.data.datasets[0].data = [totalDep, totalWd]; charts.balance.update();
+            const sortedBanks = Object.entries(bankPerf).sort((a,b) => (b[1].d + b[1].w) - (a[1].d + a[1].w)).slice(0, 5);
             charts.bank.data.labels = sortedBanks.map(x => x[0]);
             charts.bank.data.datasets[0].data = sortedBanks.map(x => x[1].d);
-            charts.bank.data.datasets[1].data = sortedBanks.map(x => x[1].w);
-            charts.bank.update();
+            charts.bank.data.datasets[1].data = sortedBanks.map(x => x[1].w); charts.bank.update();
         }
 
-        // --- DATA PROCESSING (Existing Logic + Upgrades) ---
         function tokenizeLine(line){
-            line = line.replace(/\u00A0/g,' ').trim();
-            if(!line) return [];
-            let tokens = line.split('\t');
-            if(tokens.length === 1) tokens = line.split(',');
-            if(tokens.length === 1) tokens = line.split(/\s{2,}/);
-            if(tokens.length === 1) tokens = line.split(/\s+/);
+            line = line.replace(/\u00A0/g,' ').trim(); if(!line) return [];
+            let tokens = line.split('\t'); if(tokens.length === 1) tokens = line.split(',');
+            if(tokens.length === 1) tokens = line.split(/\s{2,}/); if(tokens.length === 1) tokens = line.split(/\s+/);
             return tokens.map(t => t.replace(/^"|"$/g,'').trim());
         }
 
         function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
+            const file = event.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    let textData = '';
-                    workbook.SheetNames.forEach(sheetName => {
-                        const worksheet = workbook.Sheets[sheetName];
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                    const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'});
+                    let textData = ''; workbook.SheetNames.forEach(sheetName => {
+                        const worksheet = workbook.Sheets[sheetName]; const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                         textData += jsonData.map(row => row.join('\t')).join('\n');
                     });
-                    document.getElementById('dataInput').value = textData;
-                    showToast(`File "${file.name}" siap diproses!`);
-                } catch (error) {
-                    showToast('Gagal membaca file Excel', 'error');
-                    console.error(error);
-                }
-            };
-            reader.readAsArrayBuffer(file);
+                    document.getElementById('dataInput').value = textData; showToast(`File loaded: ${file.name}`);
+                } catch (error) { showToast('Failed to read file', 'error'); console.error(error); }
+            }; reader.readAsArrayBuffer(file);
         }
 
         function handleRefFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            const file = event.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    let textData = '';
-                    workbook.SheetNames.forEach(sheetName => {
-                        const worksheet = workbook.Sheets[sheetName];
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                    const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'});
+                    let textData = ''; workbook.SheetNames.forEach(sheetName => {
+                        const worksheet = workbook.Sheets[sheetName]; const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                         textData += jsonData.map(row => row.join('\t')).join('\n');
                     });
-                    document.getElementById('refInput').value = textData;
-                    showToast(`Referensi "${file.name}" dimuat!`);
-                } catch (error) {
-                    showToast('Gagal membaca referensi', 'error');
-                }
-            };
-            reader.readAsArrayBuffer(file);
+                    document.getElementById('refInput').value = textData; setReferensi();
+                } catch (error) { showToast('Failed to read reference', 'error'); }
+            }; reader.readAsArrayBuffer(file);
         }
 
         function tambahData(){
-            const dataInput = document.getElementById('dataInput').value;
-            if(!dataInput.trim()){ showToast('Data kosong!', 'error'); return; }
-            
-            const dataLines = dataInput.trim().split('\n');
-            let addedCount = 0;
-
+            const dataInput = document.getElementById('dataInput').value; if(!dataInput.trim()){ showToast('Data is empty', 'error'); return; }
+            const dataLines = dataInput.trim().split('\n'); let addedCount = 0;
             dataLines.forEach(line=>{
-                const tokens = tokenizeLine(line);
-                if(!tokens.length) return;
-
-                const lower = tokens.map(t => (t||'').toString().toLowerCase());
-                const isWithdraw = lower.some(t => t === 'withdraw' || t.includes('withdraw'));
-
+                const tokens = tokenizeLine(line); if(!tokens.length) return;
+                const statusToken = (tokens[10] || tokens[0] || "").toString().toLowerCase();
+                const isWithdraw = (statusToken === 'withdraw' || statusToken === 'wd' || statusToken.includes('withdraw'));
                 if(isWithdraw){
-                    const row = new Array(12).fill('');
-                    for(let i=0;i<Math.min(tokens.length,12);i++) row[i] = tokens[i];
-                    if(!row[10] || !/withdraw/i.test(row[10])) row[10] = 'Withdraw';
-                    dataWithdraw.push(row);
-
-                    const operatorName = (row[9]||row[0]||'').toString().trim();
-                    if(operatorName){
-                        daftarOperator.add(operatorName);
-                        if(operatorReferensi[operatorName]) {
-                            operatorReferensi[operatorName].hasWithdraw = true;
-                            operatorReferensi[operatorName].withdrawStatus = true;
-                        }
-                    }
+                    const row = new Array(12).fill(''); for(let i=0;i<Math.min(tokens.length,12);i++) row[i] = tokens[i];
+                    if(!row[10] || !/withdraw/i.test(row[10])) row[10] = 'Withdraw'; dataWithdraw.push(row);
+                    const operatorName = (row[9]||row[0]||'').toString().trim(); if(operatorName){ daftarOperator.add(operatorName); if(operatorReferensi[operatorName]) { operatorReferensi[operatorName].hasWithdraw = true; operatorReferensi[operatorName].withdrawStatus = true; } }
                 } else {
-                    const row = new Array(12).fill('');
-                    for(let i=0;i<Math.min(tokens.length,12);i++) row[i] = tokens[i];
-                    if(!/[\d]/.test((row[2]||'')) ){
-                        const found = tokens.find(t => /[0-9]/.test(t));
-                        if(found) row[2] = found;
-                    }
-                    dataTransaksi.push(row);
-                    const operatorName = (row[9]||row[1]||row[0]||'').toString().trim();
-                    if(operatorName){
-                        daftarOperator.add(operatorName);
-                        if(operatorReferensi[operatorName]) operatorReferensi[operatorName].status = true;
-                    }
-                }
-                addedCount++;
+                    const row = new Array(12).fill(''); for(let i=0;i<Math.min(tokens.length,12);i++) row[i] = tokens[i];
+                    if(!/[\d]/.test((row[2]||'')) ){ const found = tokens.find(t => /[0-9]/.test(t)); if(found) row[2] = found; }
+                    if(!row[10]) row[10] = 'Deposit'; dataTransaksi.push(row);
+                    const operatorName = (row[9]||row[1]||row[0]||'').toString().trim(); if(operatorName){ daftarOperator.add(operatorName); if(operatorReferensi[operatorName]) operatorReferensi[operatorName].status = true; }
+                } addedCount++;
             });
-
-            document.getElementById('dataInput').value='';
-            updateOperatorList();
-            updateDashboard();
-            saveToStorage();
-            showToast(`${addedCount} Transaksi Berhasil Disimpan!`);
+            document.getElementById('dataInput').value=''; updateOperatorList(); updateDashboard(); saveToStorage(); showToast(`${addedCount} Transactions Processed`);
         }
 
         function hapusData(){
-            dataTransaksi = [];
-            dataWithdraw = [];
-            daftarOperator.clear();
-            document.getElementById('hasil').innerHTML = '';
-            document.getElementById('fileInput').value = '';
-            document.getElementById('refFileInput').value = '';
-            document.getElementById('configPanel').classList.add('hidden');
-            localStorage.removeItem('tvtoto_data');
-            updateDashboard();
-            updateOperatorList();
-            showToast('Semua data berhasil direset', 'error');
+            dataTransaksi = []; dataWithdraw = []; daftarOperator.clear(); document.getElementById('hasil').innerHTML = '';
+            document.getElementById('fileInput').value = ''; document.getElementById('configPanel').classList.add('hidden');
+            localStorage.removeItem('tvtoto_data'); updateDashboard(); updateOperatorList(); showToast('All data has been reset', 'error');
+        }
+
+        function animateValue(obj, start, end, duration, isCurrency = false) {
+            let startTimestamp = null; const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp; const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                let val = Math.floor(progress * (end - start) + start);
+                if(isCurrency) { obj.innerHTML = formatRupiah(val); } else { obj.innerHTML = val.toLocaleString(); }
+                if (progress < 1) { window.requestAnimationFrame(step); }
+            }; window.requestAnimationFrame(step);
         }
 
         function updateDashboard() {
-            let totalDep = 0, totalWd = 0;
-            
-            dataTransaksi.forEach(item => totalDep += parseInt((item[2]||'0').replace(/[^0-9\-]/g,''),10)||0);
-            dataWithdraw.forEach(item => totalWd += parseInt((item[2]||'0').replace(/[^0-9\-]/g,''),10)||0);
-
+            let totalDep = 0, totalWd = 0, totalMinera = 0; 
+            dataTransaksi.forEach(item => {
+                const val = parseInt((item[2]||'0').replace(/[^0-9\-]/g,''),10)||0; totalDep += val;
+                const bank = (item[3]||'').toString(); if(bank.toLowerCase().includes('minera')) totalMinera += val;
+            });
+            dataWithdraw.forEach(item => {
+                const val = parseInt((item[2]||'0').replace(/[^0-9\-]/g,''),10)||0; totalWd += val;
+                // Check if Withdraw is Minera too
+                const bank = (item[6]||'').toString(); if(bank.toLowerCase().includes('minera')) totalMinera -= val;
+            });
             const net = totalDep - totalWd;
 
-            document.getElementById('statDeposit').innerText = formatRupiah(totalDep);
-            document.getElementById('statWithdraw').innerText = formatRupiah(totalWd);
-            document.getElementById('statTrx').innerText = dataTransaksi.length + dataWithdraw.length;
-            
-            const netEl = document.getElementById('totalIncomeDisplay');
-            netEl.innerText = formatRupiah(net);
-            netEl.style.color = net >= 0 ? 'var(--primary)' : 'var(--danger)';
+            animateValue(document.getElementById('statDeposit'), 0, totalDep, 1500);
+            animateValue(document.getElementById('statWithdraw'), 0, totalWd, 1500);
+            animateValue(document.getElementById('statTrx'), 0, (dataTransaksi.length + dataWithdraw.length), 1500);
+            animateValue(document.getElementById('statMinera'), 0, totalMinera, 1500, true); // New Minera Stat
 
-            updateCharts();
+            const netEl = document.getElementById('totalIncomeDisplay'); netEl.innerText = formatRupiah(net); netEl.style.color = net >= 0 ? 'var(--success)' : 'var(--danger)'; updateCharts();
         }
 
-        // --- REPORTING (Horizontal & Vertical) ---
+        // Helper to check Minera
+        function isMineraMethod(name) {
+            return name.toLowerCase().includes('minera');
+        }
+
         function hitungJumlahDanTotalTransaksi(){
-            const hasilDeposit = processAggregate(dataTransaksi, 3);
-            const hasilWithdraw = processAggregate(dataWithdraw, 6);
-            
-            let html = `
-            <h3>📌 Rekap Transaksi Detail</h3>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th colspan="3">🟢 DEPOSIT</th>
-                        </tr>
-                        <tr>
-                            <th>Bank</th>
-                            <th>Jml Trx</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-            
+            const hasilDeposit = processAggregate(dataTransaksi, 3); const hasilWithdraw = processAggregate(dataWithdraw, 6);
+            let html = `<div class="panel"><div class="panel-header"><div class="panel-title"><i class="ph ph-list-dashes"></i> Vertical Recap</div><input type="text" class="table-search" placeholder="Search bank/coin..." onkeyup="filterTable('vertTable', this.value)"></div><div class="table-wrapper"><table id="vertTable"><thead><tr><th colspan="3" style="color:var(--success)">Deposit</th></tr><tr><th>Bank / Koin</th><th>Count</th><th>Total</th></tr></thead><tbody>`;
             for(const bank in hasilDeposit){
-                html += `<tr>
-                    <td style="text-align:left; padding-left:20px;">${bank}</td>
-                    <td>${hasilDeposit[bank].count}</td>
-                    <td>${hasilDeposit[bank].total.toLocaleString()}</td>
-                </tr>`;
+                const isMinera = isMineraMethod(bank);
+                const rowClass = isMinera ? 'class="row-minera"' : '';
+                const mineraTag = isMinera ? '<span class="minera-tag">MINERA</span>' : '';
+                html += `<tr ${rowClass}><td>${bank} ${mineraTag}</td><td>${hasilDeposit[bank].count}</td><td>${hasilDeposit[bank].total.toLocaleString()}</td></tr>`;
             }
-            html += `</tbody></table></div><br>`;
-
-            html += `
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th colspan="3">🔴 WITHDRAW</th>
-                        </tr>
-                        <tr>
-                            <th>Bank Tujuan</th>
-                            <th>Jml Trx</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-
+            html += `</tbody></table></div><div class="table-wrapper"><table id="vertTableWd"><thead><tr><th colspan="3" style="color:var(--danger)">Withdraw</th></tr><tr><th>Bank / Koin</th><th>Count</th><th>Total</th></tr></thead><tbody>`;
             for(const bank in hasilWithdraw){
-                html += `<tr>
-                    <td style="text-align:left; padding-left:20px;">${bank}</td>
-                    <td>${hasilWithdraw[bank].count}</td>
-                    <td>${hasilWithdraw[bank].total.toLocaleString()}</td>
-                </tr>`;
+                const isMinera = isMineraMethod(bank);
+                const rowClass = isMinera ? 'class="row-minera"' : '';
+                const mineraTag = isMinera ? '<span class="minera-tag">MINERA</span>' : '';
+                html += `<tr ${rowClass}><td>${bank} ${mineraTag}</td><td>${hasilWithdraw[bank].count}</td><td>${hasilWithdraw[bank].total.toLocaleString()}</td></tr>`;
             }
-            html += `</tbody></table></div>`;
+            html += `</tbody></table></div></div>`; document.getElementById('hasil').innerHTML = html;
+        }
 
-            document.getElementById('hasil').innerHTML = html;
+        function filterTable(tableId, query) {
+            const filter = query.toLowerCase(); const table = document.getElementById(tableId); const tr = table.getElementsByTagName("tr");
+            for (let i = 2; i < tr.length; i++) { let td = tr[i].getElementsByTagName("td")[0]; if (td) { let txtValue = td.textContent || td.innerText; tr[i].style.display = (txtValue.toLowerCase().indexOf(filter) > -1) ? "" : "none"; } }
         }
 
         function processAggregate(dataArray, bankIndex) {
-            const result = {};
-            dataArray.forEach(item=>{
-                const bank = (item[bankIndex]||'Unknown').toString();
-                const jumlah = parseInt((item[2]||'0').toString().replace(/[^0-9\-]/g,''),10) || 0;
-                if(!result[bank]) result[bank] = { total:0, count:0 };
-                result[bank].total += jumlah;
-                result[bank].count++;
-            });
-            return result;
+            const result = {}; dataArray.forEach(item=>{ const bank = (item[bankIndex]||'Unknown').toString(); const jumlah = parseInt((item[2]||'0').toString().replace(/[^0-9\-]/g,''),10) || 0; if(!result[bank]) result[bank] = { total:0, count:0 }; result[bank].total += jumlah; result[bank].count++; }); return result;
         }
 
         function generateHorizontalReport() {
-            if(!dataTransaksi.length && !dataWithdraw.length){ 
-                showToast('Belum ada data', 'error'); 
-                return; 
-            }
-
-            allBanks.clear();
-            dataTransaksi.forEach(item => allBanks.add((item[3]||'Unknown').toString()));
-            dataWithdraw.forEach(item => allBanks.add((item[6]||'Unknown').toString()));
-
-            showBankConfig();
+            if(!dataTransaksi.length && !dataWithdraw.length){ showToast('No data available', 'error'); return; } allBanks.clear();
+            dataTransaksi.forEach(item => allBanks.add((item[3]||'Unknown').toString())); dataWithdraw.forEach(item => allBanks.add((item[6]||'Unknown').toString())); showBankConfig();
         }
 
         function showBankConfig() {
-            const configPanel = document.getElementById('configPanel');
-            const bankConfigList = document.getElementById('bankConfigList');
-            configPanel.classList.remove('hidden');
-            bankConfigList.innerHTML = '';
-            
-            if(selectedBanks.size === 0) selectedBanks = new Set(allBanks);
-
+            const configPanel = document.getElementById('configPanel'); const bankConfigList = document.getElementById('bankConfigList');
+            configPanel.classList.remove('hidden'); bankConfigList.innerHTML = ''; if(selectedBanks.size === 0) selectedBanks = new Set(allBanks);
             allBanks.forEach(bank => {
-                const div = document.createElement('div');
-                div.className = 'bank-option';
-                const isChecked = selectedBanks.has(bank) ? 'checked' : '';
+                const div = document.createElement('div'); div.className = 'bank-opt'; const isChecked = selectedBanks.has(bank) ? 'checked' : '';
                 div.innerHTML = `<input type="checkbox" id="b_${bank}" ${isChecked}> <label for="b_${bank}">${bank}</label>`;
-                
-                // Bind change event manually
-                div.querySelector('input').onchange = (e) => {
-                    if(e.target.checked) selectedBanks.add(bank);
-                    else selectedBanks.delete(bank);
-                };
-                
-                bankConfigList.appendChild(div);
+                div.querySelector('input').onchange = (e) => { if(e.target.checked) selectedBanks.add(bank); else selectedBanks.delete(bank); }; bankConfigList.appendChild(div);
             });
         }
 
-        function selectAllBanks() {
-            selectedBanks = new Set(allBanks);
-            document.querySelectorAll('#bankConfigList input').forEach(cb => cb.checked = true);
-        }
-
-        function deselectAllBanks() {
-            selectedBanks.clear();
-            document.querySelectorAll('#bankConfigList input').forEach(cb => cb.checked = false);
-        }
-
-        function applyConfig() {
-            if(selectedBanks.size === 0) { showToast('Pilih minimal 1 bank', 'error'); return; }
-            createHorizontalTable();
-        }
+        function selectAllBanks() { selectedBanks = new Set(allBanks); document.querySelectorAll('#bankConfigList input').forEach(cb => cb.checked = true); }
+        function deselectAllBanks() { selectedBanks.clear(); document.querySelectorAll('#bankConfigList input').forEach(cb => cb.checked = false); }
+        function applyConfig() { if(selectedBanks.size === 0) { showToast('Select at least 1 bank', 'error'); return; } createHorizontalTable(); }
 
         function createHorizontalTable() {
-            const hasilDeposit = processAggregate(dataTransaksi, 3);
-            const hasilWithdraw = processAggregate(dataWithdraw, 6);
-
-            let html = `
-            <h3>📊 Laporan Horizontal Terfilter</h3>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th rowspan="2">Bank</th>
-                            <th colspan="2" style="color:var(--success)">Deposit</th>
-                            <th colspan="2" style="color:var(--danger)">Withdraw</th>
-                            <th colspan="2" style="color:var(--primary)">Net</th>
-                        </tr>
-                        <tr>
-                            <th>Count</th><th>Total</th>
-                            <th>Count</th><th>Total</th>
-                            <th>Count</th><th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-
-            let grandD=0, grandW=0, grandDC=0, grandWC=0;
-
-            selectedBanks.forEach(bank => {
-                const d = hasilDeposit[bank] || {total:0, count:0};
-                const w = hasilWithdraw[bank] || {total:0, count:0};
-                const net = d.total - w.total;
-                const netC = d.count - w.count;
-                const netColor = net >= 0 ? 'var(--primary)' : 'var(--danger)';
-
-                grandD += d.total; grandW += w.total;
-                grandDC += d.count; grandWC += w.count;
-
-                html += `<tr>
-                    <td style="font-weight:bold; text-align:left; padding-left:15px;">${bank}</td>
-                    <td>${d.count}</td><td>${d.total.toLocaleString()}</td>
-                    <td>${w.count}</td><td>${w.total.toLocaleString()}</td>
-                    <td>${netC}</td>
-                    <td style="color:${netColor}; font-weight:bold;">${net.toLocaleString()}</td>
-                </tr>`;
+            const hasilDeposit = processAggregate(dataTransaksi, 3); const hasilWithdraw = processAggregate(dataWithdraw, 6);
+            let html = `<div class="panel"><div class="panel-header"><div class="panel-title"><i class="ph ph-squares-four"></i> Horizontal Recap</div><input type="text" class="table-search" placeholder="Search bank/coin..." onkeyup="filterTable('horizTable', this.value)"></div><div class="table-wrapper"><table id="horizTable"><thead><tr><th rowspan="2">Bank / Koin</th><th colspan="2" style="color:var(--success)">Deposit</th><th colspan="2" style="color:var(--danger)">Withdraw</th><th colspan="2" style="color:var(--warning)">Net</th></tr><tr><th>Count</th><th>Total</th><th>Count</th><th>Total</th><th>Count</th><th>Total</th></tr></thead><tbody>`;
+            let grandD=0, grandW=0, grandDC=0, grandWC=0; selectedBanks.forEach(bank => {
+                const d = hasilDeposit[bank] || {total:0, count:0}; const w = hasilWithdraw[bank] || {total:0, count:0}; const net = d.total - w.total; const netC = d.count - w.count; const netColor = net >= 0 ? 'var(--success)' : 'var(--danger)'; grandD += d.total; grandW += w.total; grandDC += d.count; grandWC += w.count;
+                
+                const isMinera = isMineraMethod(bank);
+                const rowClass = isMinera ? 'class="row-minera"' : '';
+                const mineraTag = isMinera ? '<span class="minera-tag">MINERA</span>' : '';
+                
+                html += `<tr ${rowClass}><td>${bank} ${mineraTag}</td><td>${d.count}</td><td>${d.total.toLocaleString()}</td><td>${w.count}</td><td>${w.total.toLocaleString()}</td><td>${netC}</td><td style="color:${netColor}; font-weight:600;">${net.toLocaleString()}</td></tr>`;
             });
-
-            const grandNet = grandD - grandW;
-            const grandNetColor = grandNet >= 0 ? 'var(--primary)' : 'var(--danger)';
-
-            html += `<tr style="background:rgba(0, 243, 255, 0.1); border-top:2px solid var(--primary);">
-                <td style="font-weight:bold;">GRAND TOTAL</td>
-                <td style="font-weight:bold;">${grandDC}</td>
-                <td style="font-weight:bold;">${grandD.toLocaleString()}</td>
-                <td style="font-weight:bold;">${grandWC}</td>
-                <td style="font-weight:bold;">${grandW.toLocaleString()}</td>
-                <td style="font-weight:bold;">${grandDC-grandWC}</td>
-                <td style="font-weight:bold; color:${grandNetColor}; font-size:1.1em;">${grandNet.toLocaleString()}</td>
-            </tr></tbody></table></div>`;
-
-            document.getElementById('hasil').innerHTML = html;
-            document.getElementById('configPanel').classList.add('hidden');
+            const grandNet = grandD - grandW; const grandNetColor = grandNet >= 0 ? 'var(--success)' : 'var(--danger)';
+            html += `<tr style="background:rgba(255,255,255,0.05); font-weight:700;"><td>GRAND TOTAL</td><td>${grandDC}</td><td>${grandD.toLocaleString()}</td><td>${grandWC}</td><td>${grandW.toLocaleString()}</td><td>${grandDC-grandWC}</td><td style="color:${grandNetColor}; font-size:1.1em;">${grandNet.toLocaleString()}</td></tr></tbody></table></div></div>`;
+            document.getElementById('hasil').innerHTML = html; document.getElementById('configPanel').classList.add('hidden');
         }
 
-        // --- EXPORT & STORAGE ---
         function downloadExcel() {
-            if(!dataTransaksi.length && !dataWithdraw.length){ showToast('Tidak ada data', 'error'); return; }
-            
-            const wb = XLSX.utils.book_new();
-
-            // Raw Data Sheet
-            const combinedData = [
-                ["Akun", "Tgl", "Jumlah", "Bank Byr", "Rek Byr", "Nm Byr", "Bank Terima", "Rek Terima", "Nm Terima", "Operator", "Jenis", "Status"],
-                ...dataTransaksi,
-                ...dataWithdraw
-            ];
-            const wsRaw = XLSX.utils.aoa_to_sheet(combinedData);
-            XLSX.utils.book_append_sheet(wb, wsRaw, "Raw Data");
-
-            // Summary Sheet
-            const dData = processAggregate(dataTransaksi, 3);
-            const wData = processAggregate(dataWithdraw, 6);
-            const summaryRows = [["Bank", "Dep Count", "Dep Total", "Wd Count", "Wd Total", "Net"]];
-            
-            const banks = new Set([...Object.keys(dData), ...Object.keys(wData)]);
-            banks.forEach(b => {
-                const d = dData[b] || {c:0,t:0};
-                const w = wData[b] || {c:0,t:0};
-                summaryRows.push([b, d.c, d.t, w.c, w.t, d.t - w.t]);
-            });
-
-            const wsSum = XLSX.utils.aoa_to_sheet(summaryRows);
-            XLSX.utils.book_append_sheet(wb, wsSum, "Summary");
-
-            XLSX.writeFile(wb, `Laporan_TVTOTO_${new Date().getTime()}.xlsx`);
-            showToast('Excel berhasil didownload!');
+            if(!dataTransaksi.length && !dataWithdraw.length){ showToast('No data to export', 'error'); return; } const wb = XLSX.utils.book_new();
+            const combinedData = [["Akun", "Tgl", "Jumlah", "Bank Byr", "Rek Byr", "Nm Byr", "Bank Terima", "Rek Terima", "Nm Terima", "Operator", "Jenis", "Status"], ...dataTransaksi, ...dataWithdraw];
+            const wsRaw = XLSX.utils.aoa_to_sheet(combinedData); XLSX.utils.book_append_sheet(wb, wsRaw, "Raw Data");
+            const dData = processAggregate(dataTransaksi, 3); const wData = processAggregate(dataWithdraw, 6); const summaryRows = [["Bank/Coin", "Dep Count", "Dep Total", "Wd Count", "Wd Total", "Net"]];
+            const activeBanks = selectedBanks.size > 0 ? selectedBanks : new Set([...Object.keys(dData), ...Object.keys(wData)]);
+            activeBanks.forEach(b => { const d = dData[b] || {c:0,t:0}; const w = wData[b] || {c:0,t:0}; summaryRows.push([b, d.c, d.t, w.c, w.t, d.t - w.t]); });
+            const wsSum = XLSX.utils.aoa_to_sheet(summaryRows); XLSX.utils.book_append_sheet(wb, wsSum, "Summary"); XLSX.writeFile(wb, `Laporan_TVTOTO_${new Date().getTime()}.xlsx`); showToast('Excel Exported Successfully');
         }
 
-        function saveToStorage() {
-            const payload = {
-                transaksi: dataTransaksi,
-                withdraw: dataWithdraw,
-                ref: operatorReferensi
-            };
-            localStorage.setItem('tvtoto_data', JSON.stringify(payload));
-        }
-
+        function saveToStorage() { localStorage.setItem('tvtoto_data', JSON.stringify({ transaksi: dataTransaksi, withdraw: dataWithdraw, ref: operatorReferensi })); }
         function loadFromStorage() {
-            const saved = localStorage.getItem('tvtoto_data');
-            if(saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    dataTransaksi = parsed.transaksi || [];
-                    dataWithdraw = parsed.withdraw || [];
-                    operatorReferensi = parsed.ref || {};
-                    
-                    if(dataTransaksi.length || dataWithdraw.length) {
-                        showToast('Data sesi sebelumnya dipulihkan');
-                    }
-                } catch(e) {
-                    console.error("Gagal load storage", e);
-                }
+            const saved = localStorage.getItem('tvtoto_data'); if(saved) {
+                try { const parsed = JSON.parse(saved); dataTransaksi = parsed.transaksi || []; dataWithdraw = parsed.withdraw || []; operatorReferensi = parsed.ref || {}; if(dataTransaksi.length || dataWithdraw.length) showToast('Previous session restored'); } catch(e) { console.error("Load error", e); }
             }
         }
 
-        // --- OPERATOR LIST LOGIC ---
-        function setReferensi(){
-            const text = document.getElementById('refInput').value.trim();
-            if(!text){ showToast('Kosong!', 'error'); return; }
-            
-            const lines = text.split('\n');
-            operatorReferensi = {};
-            let count = 0;
-
-            lines.forEach((rawLine, idx)=>{
-                let line = rawLine.replace(/\u00A0/g,' ').trim();
-                if(!line) return;
-                if(idx === 0 && /operator|deposit|withdraw|no/i.test(line)) return;
-
-                const tokens = line.split(/\s+/);
-                let opIdx = tokens.findIndex(t => /[A-Za-z]/.test(t));
-                if(opIdx === -1) opIdx = 0;
-                
-                let nameParts = [];
-                for(let j=opIdx;j<tokens.length;j++){
-                    if(/^[0-9\-,.]+$/.test(tokens[j])) break;
-                    nameParts.push(tokens[j]);
-                }
-                const nama = nameParts.join(' ').replace(/[^A-Za-z0-9_\- ]/g,'').trim();
-                if(!nama) return;
-
-                operatorReferensi[nama] = { status:false, hasWithdraw: false, withdrawStatus: false };
-                count++;
-            });
-            updateOperatorList();
-            saveToStorage();
-            showToast(`${count} Referensi Operator Disimpan`);
+        function setReferensi() {
+             const text = document.getElementById('refInput') ? document.getElementById('refInput').value : ''; if(!text) { showToast('Please upload/paste reference data', 'error'); return; }
+             const lines = text.split('\n'); operatorReferensi = {}; let count = 0;
+             lines.forEach((rawLine, idx)=>{
+                 let line = rawLine.replace(/\u00A0/g,' ').trim(); if(!line) return; if(idx === 0 && /operator|deposit|withdraw|no/i.test(line)) return;
+                 const tokens = line.split(/\s+/); let opIdx = tokens.findIndex(t => /[A-Za-z]/.test(t)); if(opIdx === -1) opIdx = 0; let nameParts = [];
+                 for(let j=opIdx;j<tokens.length;j++){ if(/^[0-9\-,.]+$/.test(tokens[j])) break; nameParts.push(tokens[j]); }
+                 const nama = nameParts.join(' ').replace(/[^A-Za-z0-9_\- ]/g,'').trim(); if(!nama) return;
+                 operatorReferensi[nama] = { status:false, hasWithdraw: false, withdrawStatus: false }; count++;
+             }); updateOperatorList(); saveToStorage(); showToast(`${count} Reference Operators Saved`);
         }
+        
+        const refInputHidden = document.createElement('textarea'); refInputHidden.id = 'refInput'; refInputHidden.style.display = 'none'; document.body.appendChild(refInputHidden);
 
         function updateOperatorList(){
-            const list = document.getElementById('operatorList');
-            list.innerHTML = '';
-            const keys = Object.keys(operatorReferensi).sort((a,b)=>a.localeCompare(b));
-            
-            if(!keys.length){
-                list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted)">Belum ada data referensi</div>';
-                return;
-            }
-
+            const list = document.getElementById('operatorList'); list.innerHTML = ''; const keys = Object.keys(operatorReferensi).sort((a,b)=>a.localeCompare(b));
+            if(!keys.length){ list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.8rem">No data</div>'; return; }
             keys.forEach(op => {
-                const li = document.createElement('div');
-                let statusClass = '';
-                let badgeText = 'Wait';
-                
-                if(operatorReferensi[op].status) {
-                    statusClass = 'status-deposit';
-                    badgeText = 'DEPO';
-                } else if(operatorReferensi[op].withdrawStatus) {
-                    statusClass = 'status-withdraw';
-                    badgeText = 'WD';
-                } else if(operatorReferensi[op].hasWithdraw) {
-                    statusClass = 'status-net';
-                    badgeText = 'Mixed';
-                }
-
-                li.className = `operator-item ${statusClass}`;
-                li.innerHTML = `
-                    <span style="font-weight:600">${op}</span>
-                    <span class="op-badge">${badgeText}</span>
-                `;
-                li.dataset.name = op.toLowerCase();
-                list.appendChild(li);
+                const li = document.createElement('li'); li.className = 'operator-item'; let badgeColor = 'var(--text-muted)'; let badgeBg = 'rgba(255,255,255,0.1)'; let badgeText = 'Wait';
+                if(operatorReferensi[op].status) { badgeColor = '#fff'; badgeBg = 'var(--success)'; badgeText = 'DEPO'; } else if(operatorReferensi[op].withdrawStatus) { badgeColor = '#fff'; badgeBg = 'var(--danger)'; badgeText = 'WD'; } else if(operatorReferensi[op].hasWithdraw) { badgeColor = '#fff'; badgeBg = 'var(--primary)'; badgeText = 'Mix'; }
+                li.innerHTML = `<span>${op}</span><span class="op-badge" style="color:${badgeColor}; background:${badgeBg}">${badgeText}</span>`; li.dataset.name = op.toLowerCase(); list.appendChild(li);
             });
         }
 
-        function filterOperatorList() {
-            const q = document.getElementById('opSearch').value.toLowerCase();
-            const items = document.querySelectorAll('.operator-item');
-            items.forEach(item => {
-                const name = item.dataset.name;
-                item.style.display = (name.includes(q)) ? 'flex' : 'none';
-            });
-        }
+        function formatRupiah(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka); }
 
-        // --- HELPERS ---
-        function formatRupiah(angka) {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
-        }
-
-        // --- PARTICLES BACKGROUND (CANVAS) ---
         function initParticles() {
-            const canvas = document.getElementById('bgCanvas');
-            const ctx = canvas.getContext('2d');
-            let particles = [];
-            
-            function resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-            window.addEventListener('resize', resize);
-            resize();
-
-            class Particle {
-                constructor() {
-                    this.x = Math.random() * canvas.width;
-                    this.y = Math.random() * canvas.height;
-                    this.vx = (Math.random() - 0.5) * 0.5;
-                    this.vy = (Math.random() - 0.5) * 0.5;
-                    this.size = Math.random() * 2;
-                }
-                update() {
-                    this.x += this.vx;
-                    this.y += this.vy;
-                    if(this.x < 0 || this.x > canvas.width) this.vx *= -1;
-                    if(this.y < 0 || this.y > canvas.height) this.vy *= -1;
-                }
-                draw() {
-                    ctx.fillStyle = 'rgba(0, 243, 255, 0.5)';
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-
-            for(let i=0; i<60; i++) particles.push(new Particle());
-
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                particles.forEach((p, index) => {
-                    p.update();
-                    p.draw();
-                    
-                    // Draw connections
-                    for(let j=index; j<particles.length; j++) {
-                        const dx = particles[j].x - p.x;
-                        const dy = particles[j].y - p.y;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
-                        
-                        if(dist < 150) {
-                            ctx.strokeStyle = `rgba(0, 243, 255, ${0.1 - dist/1500})`;
-                            ctx.lineWidth = 1;
-                            ctx.beginPath();
-                            ctx.moveTo(p.x, p.y);
-                            ctx.lineTo(particles[j].x, particles[j].y);
-                            ctx.stroke();
-                        }
-                    }
-                });
-                requestAnimationFrame(animate);
-            }
-            animate();
+            const canvas = document.getElementById('bgCanvas'); const ctx = canvas.getContext('2d'); let particles = [];
+            function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; } window.addEventListener('resize', resize); resize();
+            class Particle { constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.vx = (Math.random() - 0.5) * 0.2; this.vy = (Math.random() - 0.5) * 0.2; this.size = Math.random() * 1.5; } update() { this.x += this.vx; this.y += this.vy; if(this.x < 0 || this.x > canvas.width) this.vx *= -1; if(this.y < 0 || this.y > canvas.height) this.vy *= -1; } draw() { ctx.fillStyle = 'rgba(59, 130, 246, 0.3)'; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } }
+            for(let i=0; i<50; i++) particles.push(new Particle());
+            function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach((p, index) => { p.update(); p.draw(); for(let j=index; j<particles.length; j++) { const dx = particles[j].x - p.x; const dy = particles[j].y - p.y; const dist = Math.sqrt(dx*dx + dy*dy); if(dist < 100) { ctx.strokeStyle = `rgba(59, 130, 246, ${0.05 - dist/2000})`; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke(); } } }); requestAnimationFrame(animate); } animate();
         }
     </script>
 </body>
